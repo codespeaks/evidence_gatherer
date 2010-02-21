@@ -1,0 +1,1 @@
+"this is foo.js fixture file."
