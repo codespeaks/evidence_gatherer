@@ -6,7 +6,7 @@ module EvidenceGatherer
     
     def script_tag(src)
       src = escape_html(src)
-      %{<script src="#{src} type="text/javascript“ charset="utf-8"></script>}
+      %{<script src="#{src}" type="text/javascript" charset="utf-8"></script>}
     end
     
     def link_tag(href)
@@ -19,7 +19,7 @@ module EvidenceGatherer
     end
   end
   
-  class TestView < Mustache
+  class TestPageView < Mustache
     include TagHelper
     
     def initialize(attributes = {})
@@ -31,15 +31,22 @@ module EvidenceGatherer
     end
     
     def js
-      script_tag(@attributes[:js])
+      apply(:script_tag, :javascripts)
     end
     
     def css
-      link_tag(@attributes[:css])
+      apply(:link_tag, :stylesheets)
     end
     
     def html
       @attributes[:html]
     end
+    
+    protected
+      def apply(method, attribute)
+        Array(@attributes[attribute]).compact.collect do |path|
+          send(method, path)
+        end.join("\n")
+      end
   end
 end

@@ -23,9 +23,17 @@ class SuiteBuilderTest < Test::Unit::TestCase
     assert_equal compute_dir_checksum(File.join(@project_tests_root, "fixtures")), compute_dir_checksum(File.join(@output_directory, "fixtures"))
   end
   
-  def test_should_copy_test_files
+  def test_should_build_test_pages
+    @suite_builder.test_files.each do |test_file|
+      EvidenceGatherer::TestPageBuilder.expects(:build).once.with(test_file, @suite_builder)
+    end
     @suite_builder.build
-    assert_equal File.read(File.join(@project_tests_root, "foo_test.js")), File.read(File.join(@output_directory, "tests", "foo_test.js"))
+  end
+  
+  def test_should_create_manifest
+    manifest = File.join(@output_directory, "Manifest.json")
+    assert File.exist?(manifest)
+    assert_equal ["bar/bar.html","foo.html"], JSON.parse(File.read(manifest))
   end
   
   protected

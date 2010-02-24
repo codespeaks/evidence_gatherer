@@ -1,7 +1,7 @@
 module EvidenceGatherer
   class SuiteBuilder
     TEMPLATES_DIRECTORY = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "templates")).freeze
-    DEFAULT_TEMPLATE = "html401".freeze
+    DEFAULT_TEMPLATE = :html401
     DEFAULT_FILE_PATTERN = "**/*_test.js".freeze
     
     attr_reader :input_dir, :output_dir
@@ -16,9 +16,9 @@ module EvidenceGatherer
       delete_output_dir
       create_output_directory_structure
       copy_fixtures if fixtures_path.directory?
-      copy_test_files
       copy_evidence
-      build_test_files
+      files = build_test_files
+      create_manifest(files)
     end
     
     def fixtures_path
@@ -52,6 +52,10 @@ module EvidenceGatherer
       File.join(TEMPLATES_DIRECTORY, template_filename)
     end
     
+    def test_files_output_dir
+      output_dir.join("tests")
+    end
+    
     protected
       def pathname(path)
         Pathname.new(File.expand_path(path))
@@ -63,7 +67,7 @@ module EvidenceGatherer
       
       def create_output_directory_structure
         FileUtils.mkdir_p(output_dir)
-        FileUtils.mkdir_p(output_test_files_path)
+        FileUtils.mkdir_p(test_files_output_dir)
       end
       
       def copy_fixtures
@@ -74,19 +78,18 @@ module EvidenceGatherer
         output_dir.join(fixtures_path.relative_path_from(input_dir))
       end
       
-      def copy_test_files
-        test_files.each { |test_files| FileUtils.cp(test_files, output_test_files_path) }
-      end
-      
-      def output_test_files_path
-        output_dir.join("tests")
-      end
-      
       def copy_evidence
+        # TODO
       end
       
       def build_test_files
-        test_files.each { |test_file| TestBuilder.new(test_file, self).build }
+        test_files.collect { |test_file| TestPageBuilder.build(test_file, self) }
+      end
+      
+      def create_manifest(files)
+        File.open(output_dir.join("Manifest.json"), "w") do |f|
+          f << files.to_json
+        end
       end
       
       def template_filename
