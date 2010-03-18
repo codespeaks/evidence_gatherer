@@ -93,7 +93,7 @@ module EvidenceGatherer
       
       def render_view(attributes)
         view = TestPageView.new(attributes)
-        view.template = @suite_builder.template
+        view.template = @suite_builder.template_content
         view.render
       end
       
@@ -118,7 +118,7 @@ module EvidenceGatherer
       end
       
       def canonical_name
-        input_path.basename(".js").sub(/_test$/, '')
+        input_path.basename(".js").to_s.sub(/_test$/, '')
       end
   end
 end
