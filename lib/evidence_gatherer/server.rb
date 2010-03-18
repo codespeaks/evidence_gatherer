@@ -1,9 +1,3 @@
-require 'rack/builder'
-require 'rack/directory'
-require 'rack/handler'
-require 'rack/commonlogger'
-require 'rack/showexceptions'
-
 module EvidenceGatherer
   class Server
     def initialize(root, options = {})
@@ -27,19 +21,16 @@ module EvidenceGatherer
       
       def rack_app
         root = @root
-        
         Rack::Builder.new do
           use Rack::CommonLogger
           use Rack::ShowExceptions
-
           map "/results" do
-            run "ResultCollecter..."
+            run ResultsCollecter
           end
-
-          run Rack::Directory.new(root)
+          map "/" do
+            run Rack::Directory.new(root)
+          end
         end
       end
   end
 end
-
-# EvidenceGatherer::Server.new(File.dirname(__FILE__)).start
