@@ -30,11 +30,11 @@ module EvidenceGatherer
       escape_html(@attributes[:title])
     end
     
-    def js
+    def javascripts
       apply(:script_tag, :javascripts)
     end
     
-    def css
+    def stylesheets
       apply(:link_tag, :stylesheets)
     end
     
