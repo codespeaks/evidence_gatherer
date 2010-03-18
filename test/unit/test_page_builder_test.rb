@@ -18,10 +18,31 @@ class TestPageBuilderTest < Test::Unit::TestCase
   end
   
   def test_should_render_test_page
+    mocked_view = mock
+    mocked_view.expects(:render).twice.returns("mocked output")
+    mocked_view.expects(:template=).twice.with(@suite_builder.template_content)
+    
+    EvidenceGatherer::TestPageView.expects(:new).with(
+      :stylesheets => nil,
+      :javascripts => ['../fixtures/foo.js', '../tests/foo_test.js'],
+      :html => nil,
+      :title => "foo").returns(mocked_view)
+    
     build_page_for("foo")
-    assert File.exist?(File.join(@test_pages_output_directory, "foo.html"))
+    file = File.join(@test_pages_output_directory, "foo.html")
+    assert File.exist?(file)
+    assert_equal "mocked output", File.read(file)
+    
+    EvidenceGatherer::TestPageView.expects(:new).with(
+      :stylesheets => '../../fixtures/bar/bar.css',
+      :javascripts => [nil, '../../tests/bar/bar_test.js'],
+      :html => "This is bar/bar.html fixture file\n",
+      :title => "bar").returns(mocked_view)
+    
     build_page_for("bar")
-    assert File.exist?(File.join(@test_pages_output_directory, "bar", "bar.html"))
+    file = File.join(@test_pages_output_directory, "bar", "bar.html")
+    assert File.exist?(file)
+    assert_equal "mocked output", File.read(file)
   end
   
   def test_should_return_relative_path_for_manifest
