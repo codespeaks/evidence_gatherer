@@ -48,12 +48,20 @@ module EvidenceGatherer
       @template = template
     end
     
-    def template_path
-      File.join(TEMPLATES_DIRECTORY, template_filename)
+    def template_content
+      File.read(template_path)
     end
     
     def test_files_output_dir
       output_dir.join("tests")
+    end
+    
+    def test_pages_output_dir
+      output_dir.join("test_pages")
+    end
+    
+    def fixtures_output_dir
+      output_dir.join(fixtures_path.relative_path_from(input_dir))
     end
     
     protected
@@ -66,16 +74,12 @@ module EvidenceGatherer
       end
       
       def create_output_directory_structure
-        FileUtils.mkdir_p(output_dir)
         FileUtils.mkdir_p(test_files_output_dir)
+        FileUtils.mkdir_p(test_pages_output_dir)
       end
       
       def copy_fixtures
-        FileUtils.cp_r(fixtures_path, output_fixtures_path)
-      end
-      
-      def output_fixtures_path
-        output_dir.join(fixtures_path.relative_path_from(input_dir))
+        FileUtils.cp_r(fixtures_path, fixtures_output_dir)
       end
       
       def copy_evidence
@@ -87,13 +91,21 @@ module EvidenceGatherer
       end
       
       def create_manifest(files)
-        File.open(output_dir.join("Manifest.json"), "w") do |f|
+        File.open(manifest_path, "w") do |f|
           f << files.to_json
         end
       end
       
+      def manifest_path
+        test_pages_output_dir.join("Manifest.json")
+      end
+      
       def template_filename
         "#{template}.mustache"
+      end
+      
+      def template_path
+        File.join(TEMPLATES_DIRECTORY, template_filename)
       end
   end
 end

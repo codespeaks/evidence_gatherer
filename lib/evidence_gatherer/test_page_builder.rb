@@ -1,5 +1,64 @@
 module EvidenceGatherer
   class TestPageBuilder
+    module Assets
+      def assets
+        {
+          :stylesheets => css_fixtures_public_path,
+          :javascripts => [js_fixtures_public_path, test_file_public_path],
+          :html => html_content
+        }
+      end
+      
+      def css_fixtures_public_path
+        css_fixtures = fixtures_path_for(:css)
+        fixtures_public_path(css_fixtures) if css_fixtures.exist?
+      end
+      
+      def js_fixtures_public_path
+        js_fixtures = fixtures_path_for(:js)
+        fixtures_public_path(js_fixtures) if js_fixtures.exist?
+      end
+      
+      def html_content
+        html_fixtures = fixtures_path_for(:html)
+        File.read(html_fixtures) if html_fixtures.exist?
+      end
+      
+      def fixtures_path_for(extension)
+        name = fixtures_name_for(extension)
+        @suite_builder.fixtures_path.join(relative_dir, name)
+      end
+      
+      def fixtures_name_for(extension)
+        "#{canonical_name}.#{extension}"
+      end
+      
+      def test_file_public_path
+        path = test_file_output_path.relative_path_from(output_dir)
+        normalize_public_path(path)
+      end
+      
+      def test_file_output_path
+        @suite_builder.test_files_output_dir.join(relative_path)
+      end
+      
+      def relative_fixtures_output_dir
+        @suite_builder.fixtures_output_dir.relative_path_from(output_dir)
+      end
+      
+      def fixtures_public_path(path)
+        path = path.relative_path_from(@suite_builder.fixtures_path)
+        path = relative_fixtures_output_dir.join(path)
+        normalize_public_path(path)
+      end
+      
+      def normalize_public_path(path)
+        path.to_s.gsub(File::SEPARATOR, '/')
+      end
+    end
+    
+    include Assets
+    
     attr_reader :input_path
     
     def self.build(*args)
@@ -14,15 +73,13 @@ module EvidenceGatherer
     def build
       render_test_page
       copy_test_file
-      output_path.relative_path_from(@suite_builder.output_dir)
+      relative_output_path
     end
     
     protected
       def render_test_page
         FileUtils.mkdir_p(output_dir)
-        File.open(output_path, "w") do |f|
-          f << render
-        end
+        File.open(output_path, 'w') { |f| f << render }
       end
       
       def copy_test_file
@@ -31,65 +88,37 @@ module EvidenceGatherer
       end
       
       def render
-        view(
-          :title => canonical_name,
-          :stylesheets => css_fixtures,
-          :javascripts => [js_fixtures, js_test_file],
-          :html => html_content
-        ).render
+        render_view(assets.merge(:title => canonical_name))
       end
       
-      def view(attributes)
+      def render_view(attributes)
         view = TestPageView.new(attributes)
-        view.template = File.read(@suite_builder.template_path)
-        view
-      end
-      
-      def output_dir
-        @suite_builder.output_dir.join(relative_pathname.dirname)
+        view.template = @suite_builder.template
+        view.render
       end
       
       def output_path
         output_dir.join("#{canonical_name}.html")
       end
       
-      def relative_pathname
+      def output_dir
+        @suite_builder.test_pages_output_dir.join(relative_dir)
+      end
+      
+      def relative_output_path
+        output_path.relative_path_from(@suite_builder.test_pages_output_dir)
+      end
+      
+      def relative_path
         input_path.relative_path_from(@suite_builder.input_dir)
       end
       
-      def test_file_output_path
-        @suite_builder.test_files_output_dir.join(relative_pathname)
+      def relative_dir
+        relative_path.dirname
       end
       
       def canonical_name
         input_path.basename(".js").sub(/_test$/, '')
-      end
-      
-      def css_fixtures
-        css_fixtures = fixtures_path(:css)
-        to_server_path(css_fixtures) if css_fixtures.exist?
-      end
-      
-      def js_fixtures
-        js_fixtures = fixtures_path(:js)
-        to_server_path(js_fixtures) if js_fixtures.exist?
-      end
-      
-      def fixtures_path(extension)
-        @suite_builder.fixtures_path.join(relative_pathname).dirname.join("#{canonical_name}.#{extension}")
-      end
-      
-      def html_content
-        html_fixtures = fixtures_path(:html)
-        File.read(html_fixtures) if html_fixtures.exist?
-      end
-      
-      def js_test_file
-        @suite_builder.test_files_output_dir.relative_path_from(output_dir).join(input_path.basename)
-      end
-      
-      def to_server_path(path)
-        path.relative_path_from(input_path.dirname).to_s.gsub(File::SEPARATOR, '/')
       end
   end
 end
