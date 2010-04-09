@@ -1,7 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-require 'digest/md5'
-  
 class SuiteBuilderTest < Test::Unit::TestCase
   def setup
     @project_tests_root = File.join(FIXTURES_ROOT, "fixture_project", "test")
@@ -35,9 +33,9 @@ class SuiteBuilderTest < Test::Unit::TestCase
   
   def test_should_create_manifest
     @suite_builder.build
-    manifest = File.join(@output_directory, "test_pages", "Manifest.json")
+    manifest = File.join(@output_directory, "test_pages", "Manifest")
     assert File.exist?(manifest)
-    assert_equal ["bar/bar.html","foo.html"], JSON.parse(File.read(manifest))
+    assert_equal ["bar/bar.html","foo.html"], File.read(manifest).split("\n")
   end
   
   protected

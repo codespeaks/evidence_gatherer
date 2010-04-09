@@ -1,8 +1,10 @@
 module EvidenceGatherer
   class SuiteBuilder
-    TEMPLATES_DIRECTORY = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "templates")).freeze
+    TEMPLATES_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'templates')).freeze
+    ASSETS_DIR = File.join(File.dirname(__FILE__), '..', '..', 'assets').freeze
     DEFAULT_TEMPLATE = :html401
-    DEFAULT_FILE_PATTERN = "**/*_test.js".freeze
+    DEFAULT_FILE_PATTERN = '**/*_test.js'.freeze
+    DEFAULT_INDEX_PAGE = File.join(ASSETS_DIR, 'index.html').freeze
     
     attr_reader :input_dir, :output_dir
     
@@ -15,19 +17,20 @@ module EvidenceGatherer
     def build
       delete_output_dir
       create_output_directory_structure
-      copy_fixtures if fixtures_path.directory?
+      copy_fixtures
       copy_evidence
-      files = build_test_files
+      copy_index_page
+      files = build_test_pages
       create_manifest(files)
     end
     
-    def fixtures_path
-      self.fixtures_path = input_dir.join("fixtures") if @fixtures_path.nil?
-      @fixtures_path
+    def fixtures_dir
+      self.fixtures_dir = input_dir.join("fixtures") if @fixtures_dir.nil?
+      @fixtures_dir
     end
     
-    def fixtures_path=(fixtures_path)
-      @fixtures_path = pathname(fixtures_path)
+    def fixtures_dir=(fixtures_dir)
+      @fixtures_dir = pathname(fixtures_dir)
     end
     
     def test_files
@@ -48,6 +51,15 @@ module EvidenceGatherer
       @template = template
     end
     
+    def index_page
+      self.index_page = DEFAULT_INDEX_PAGE if @index_page.nil?
+      @index_page
+    end
+    
+    def index_page=(index_page)
+      @index_page = index_page
+    end
+    
     def template_content
       File.read(template_path)
     end
@@ -61,7 +73,11 @@ module EvidenceGatherer
     end
     
     def fixtures_output_dir
-      output_dir.join(fixtures_path.relative_path_from(input_dir))
+      output_dir.join(fixtures_dir.relative_path_from(input_dir))
+    end
+    
+    def assets_output_dir
+      output_dir.join("assets")
     end
     
     protected
@@ -76,28 +92,37 @@ module EvidenceGatherer
       def create_output_directory_structure
         FileUtils.mkdir_p(test_files_output_dir)
         FileUtils.mkdir_p(test_pages_output_dir)
+        FileUtils.mkdir_p(assets_output_dir)
       end
       
       def copy_fixtures
-        FileUtils.cp_r(fixtures_path, fixtures_output_dir)
+        if fixtures_dir.directory?
+          FileUtils.cp_r(fixtures_dir, fixtures_output_dir)
+        end
       end
       
       def copy_evidence
-        # TODO
+        # FileUtils.cp(File.join(ASSETS_DIR, 'evidence.js'), assets_output_dir)
       end
       
-      def build_test_files
-        test_files.collect { |test_file| TestPageBuilder.build(test_file, self) }
+      def copy_index_page
+        FileUtils.cp(index_page, output_dir)
+      end
+      
+      def build_test_pages
+        test_files.collect do |file|
+          TestPageBuilder.build(file, self)
+        end
       end
       
       def create_manifest(files)
-        File.open(manifest_path, "w") do |f|
-          f << files.to_json
+        File.open(manifest_path, 'w') do |f|
+          f << files.join("\n")
         end
       end
       
       def manifest_path
-        test_pages_output_dir.join("Manifest.json")
+        test_pages_output_dir.join('Manifest')
       end
       
       def template_filename
@@ -105,7 +130,11 @@ module EvidenceGatherer
       end
       
       def template_path
-        File.join(TEMPLATES_DIRECTORY, template_filename)
+        if template.is_a?(Symbol)
+          File.join(TEMPLATES_DIR, template_filename)
+        else
+          template_filename
+        end
       end
   end
 end

@@ -1,3 +1,5 @@
+require 'rack'
+
 module EvidenceGatherer
   class Server
     def initialize(root, options = {})
@@ -5,8 +7,8 @@ module EvidenceGatherer
       @options = options
     end
     
-    def start
-      handler.run(rack_app, @options)
+    def start(&block)
+      handler.run(rack_app, @options, &block)
     end
     
     protected
@@ -24,9 +26,11 @@ module EvidenceGatherer
         Rack::Builder.new do
           use Rack::CommonLogger
           use Rack::ShowExceptions
+          
           map "/results" do
             run ResultsCollecter
           end
+          
           map "/" do
             run Rack::Directory.new(root)
           end

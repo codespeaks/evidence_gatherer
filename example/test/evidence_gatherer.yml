@@ -1,0 +1,4 @@
+agents:
+  - firefox
+template:
+  :html5

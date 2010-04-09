@@ -10,23 +10,23 @@ module EvidenceGatherer
       end
       
       def css_fixtures_public_path
-        css_fixtures = fixtures_path_for(:css)
+        css_fixtures = fixtures_dir_for(:css)
         fixtures_public_path(css_fixtures) if css_fixtures.exist?
       end
       
       def js_fixtures_public_path
-        js_fixtures = fixtures_path_for(:js)
+        js_fixtures = fixtures_dir_for(:js)
         fixtures_public_path(js_fixtures) if js_fixtures.exist?
       end
       
       def html_content
-        html_fixtures = fixtures_path_for(:html)
+        html_fixtures = fixtures_dir_for(:html)
         File.read(html_fixtures) if html_fixtures.exist?
       end
       
-      def fixtures_path_for(extension)
+      def fixtures_dir_for(extension)
         name = fixtures_name_for(extension)
-        @suite_builder.fixtures_path.join(relative_dir, name)
+        @suite_builder.fixtures_dir.join(relative_dir, name)
       end
       
       def fixtures_name_for(extension)
@@ -47,7 +47,7 @@ module EvidenceGatherer
       end
       
       def fixtures_public_path(path)
-        path = path.relative_path_from(@suite_builder.fixtures_path)
+        path = path.relative_path_from(@suite_builder.fixtures_dir)
         path = relative_fixtures_output_dir.join(path)
         normalize_public_path(path)
       end

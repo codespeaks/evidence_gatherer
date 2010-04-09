@@ -1,0 +1,7 @@
+# Copy this file into ~/.evidence_gatherer/
+
+firefox: /Applications/Firefox.app/Contents/MacOS/firefox-bin
+safari: open
+
+# Beware of YAML's insensitivity to quotes in complex cases, e.g.
+# firefox_3_6: "'/Developer/Applications/Browsers/Firefox 3.6.app/Contents/MacOS/firefox-bin' -P 'Firefox 3.6'"
