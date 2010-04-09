@@ -1,3 +1,5 @@
+require 'optparse'
+
 module EvidenceGatherer
   module CLI
     extend self
@@ -6,9 +8,9 @@ module EvidenceGatherer
       @options = {}
       options_parser.parse!(args)
       command, test_dir = args
-      validate_command!(command)
       ensure_present!(command)
       ensure_present!(test_dir)
+      validate_command!(command)
       config = Config.local(test_dir)
       config = config.merge(@options)
       Runner.send(command, config)
@@ -16,15 +18,18 @@ module EvidenceGatherer
     
     def validate_command!(command)
       unless %w( build server gather ).include?(command)
-        raise ArgumentError, "Unknown command: #{command}"
+        puts "Unknown command: #{command}"
+        exit_with_usage
       end
     end
     
     def ensure_present!(value)
-      if value.to_s.empty?
-        puts options_parser.help
-        exit 1
-      end
+      exit_with_usage if value.to_s.empty?
+    end
+    
+    def exit_with_usage
+      puts options_parser.help
+      exit 1
     end
     
     def options_parser
