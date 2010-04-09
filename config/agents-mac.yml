@@ -1,4 +1,4 @@
-# Copy this file into ~/.evidence_gatherer/
+# Copy this file to ~/.evidence_gatherer/agents.yml
 
 firefox: /Applications/Firefox.app/Contents/MacOS/firefox-bin
 safari: open
