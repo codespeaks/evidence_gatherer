@@ -10,6 +10,12 @@ module EvidenceGatherer
     DEFAULT_PORT = 3711
     DEFAULT_TEMPLATE = :html401
     
+    def self.local(dir)
+      local = File.join(dir, LOCAL)
+      config = File.exist?(local) ? load_yaml(local) : new
+      config.merge(:root => dir)
+    end
+    
     def self.load_yaml(filename)
       new(YAML.load_file(filename))
     end

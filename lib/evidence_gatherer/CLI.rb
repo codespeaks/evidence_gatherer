@@ -9,7 +9,7 @@ module EvidenceGatherer
       validate_command!(command)
       ensure_present!(command)
       ensure_present!(test_dir)
-      config = local_config(test_dir)
+      config = Config.local(test_dir)
       config = config.merge(@options)
       Runner.send(command, config)
     end
@@ -21,20 +21,10 @@ module EvidenceGatherer
     end
     
     def ensure_present!(value)
-      if value.to_s.strip.empty?
+      if value.to_s.empty?
         puts options_parser.help
         exit 1
       end
-    end
-    
-    def local_config(dir)
-      local_config = File.join(dir, Config::LOCAL)
-      if File.exist?(local_config)
-        config = Config.load_yaml(local_config)
-      else
-        config = Config.new
-      end
-      config.merge(:root => dir)
     end
     
     def options_parser
