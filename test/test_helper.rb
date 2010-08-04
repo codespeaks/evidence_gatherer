@@ -4,6 +4,7 @@ OUTPUT_ROOT   = TEST_ROOT + '/output'
 
 $:.unshift(File.dirname(__FILE__) + '/../lib')
 
+require 'rubygems'
 require 'test/unit'
 require 'mocha'
 require 'digest/md5'
