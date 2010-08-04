@@ -28,7 +28,7 @@ module EvidenceGatherer
           use Rack::ShowExceptions
           
           map "/results" do
-            run ResultsCollecter
+            run ResultsCollector
           end
           
           map "/" do

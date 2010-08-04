@@ -1,5 +1,5 @@
 module EvidenceGatherer
-  class ResultsCollecter
+  class ResultsCollector
     EMPTY_RESPONSE = [200, {}, [""]].freeze
     
     def self.call(env)

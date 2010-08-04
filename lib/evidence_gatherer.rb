@@ -12,5 +12,5 @@ module EvidenceGatherer
   autoload :TestPageView, 'evidence_gatherer/test_page_view'
   autoload :Server, 'evidence_gatherer/server'
   autoload :UserAgent, 'evidence_gatherer/user_agent'
-  autoload :ResultsCollecter, 'evidence_gatherer/results_collecter'
+  autoload :ResultsCollector, 'evidence_gatherer/results_collector'
 end
