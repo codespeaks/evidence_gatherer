@@ -16,8 +16,7 @@ module EvidenceGatherer
     
     def build
       delete_output_dir
-      create_output_directory_structure
-      copy_fixtures
+      create_output_dir_structure
       copy_evidence
       copy_index_page
       files = build_test_pages
@@ -64,16 +63,8 @@ module EvidenceGatherer
       File.read(template_path)
     end
     
-    def test_files_output_dir
-      output_dir.join("tests")
-    end
-    
     def test_pages_output_dir
       output_dir.join("test_pages")
-    end
-    
-    def fixtures_output_dir
-      output_dir.join(fixtures_dir.relative_path_from(input_dir))
     end
     
     def assets_output_dir
@@ -89,16 +80,9 @@ module EvidenceGatherer
         FileUtils.rm_rf(output_dir)
       end
       
-      def create_output_directory_structure
-        FileUtils.mkdir_p(test_files_output_dir)
+      def create_output_dir_structure
         FileUtils.mkdir_p(test_pages_output_dir)
         FileUtils.mkdir_p(assets_output_dir)
-      end
-      
-      def copy_fixtures
-        if fixtures_dir.directory?
-          FileUtils.cp_r(fixtures_dir, fixtures_output_dir)
-        end
       end
       
       def copy_evidence
