@@ -48,7 +48,7 @@ module EvidenceGatherer
     
     include Assets
     
-    attr_reader :input_path
+    attr_reader :input_path, :suite_builder
     
     def self.build(*args)
       new(*args).build
@@ -93,7 +93,7 @@ module EvidenceGatherer
       end
       
       def fixtures_dir
-        @suite_builder.fixtures_dir.join(relative_dir)
+        suite_builder.fixtures_dir.join(relative_dir)
       end
       
       def fixtures_output_dir
@@ -106,7 +106,7 @@ module EvidenceGatherer
       
       def render_view(attributes)
         view = TestPageView.new(attributes)
-        view.template = @suite_builder.template_content
+        view.template = suite_builder.template_content
         view.render
       end
       
@@ -126,15 +126,15 @@ module EvidenceGatherer
       end
       
       def output_root
-        @suite_builder.test_pages_output_dir
+        suite_builder.test_pages_output_dir
       end
       
       def relative_output_path
-        output_path.relative_path_from(@suite_builder.test_pages_output_dir)
+        output_path.relative_path_from(suite_builder.test_pages_output_dir)
       end
       
       def relative_path
-        input_path.relative_path_from(@suite_builder.input_dir)
+        input_path.relative_path_from(suite_builder.input_dir)
       end
       
       # TODO: used?
