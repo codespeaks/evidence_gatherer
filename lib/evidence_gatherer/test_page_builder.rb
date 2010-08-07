@@ -1,7 +1,7 @@
 module EvidenceGatherer
   class TestPageBuilder
     module Assets
-      def assets
+      def view_attributes
         {
           :stylesheets => css_fixtures_public_path,
           :javascripts => [js_fixtures_public_path, test_file_public_path],
@@ -38,11 +38,6 @@ module EvidenceGatherer
       
       def fixtures_public_path(path)
         "fixtures/#{path.basename}"
-      end
-      
-      # TODO: remove if unused
-      def normalize_public_path(path)
-        path.to_s.gsub(File::SEPARATOR, '/')
       end
     end
     
@@ -101,13 +96,17 @@ module EvidenceGatherer
       end
       
       def render
-        render_view(assets.merge(:title => canonical_name))
+        render_view(view_attributes.merge(:title => canonical_name))
       end
       
       def render_view(attributes)
         view = TestPageView.new(attributes)
-        view.template = suite_builder.template_content
+        view.template = template
         view.render
+      end
+      
+      def template
+        File.read(suite_builder.template_path)
       end
       
       # test/foo/bar_test.js -> test_pages/foo/bar/index.html
@@ -137,7 +136,6 @@ module EvidenceGatherer
         input_path.relative_path_from(suite_builder.input_dir)
       end
       
-      # TODO: used?
       def relative_dir
         relative_path.dirname
       end

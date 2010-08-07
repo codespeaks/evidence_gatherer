@@ -59,16 +59,20 @@ module EvidenceGatherer
       @index_page = index_page
     end
     
-    def template_content
-      File.read(template_path)
-    end
-    
     def test_pages_output_dir
       output_dir.join("test_pages")
     end
     
     def assets_output_dir
       output_dir.join("assets")
+    end
+    
+    def template_path
+      if template.is_a?(Symbol)
+        File.join(TEMPLATES_DIR, template_filename)
+      else
+        template_filename
+      end
     end
     
     protected
@@ -111,14 +115,6 @@ module EvidenceGatherer
       
       def template_filename
         "#{template}.mustache"
-      end
-      
-      def template_path
-        if template.is_a?(Symbol)
-          File.join(TEMPLATES_DIR, template_filename)
-        else
-          template_filename
-        end
       end
   end
 end

@@ -9,6 +9,7 @@ module EvidenceGatherer
   autoload :Runner, 'evidence_gatherer/runner'
   autoload :SuiteBuilder, 'evidence_gatherer/suite_builder'
   autoload :TestPageBuilder, 'evidence_gatherer/test_page_builder'
+  autoload :TagHelper, 'evidence_gatherer/tag_helper'
   autoload :TestPageView, 'evidence_gatherer/test_page_view'
   autoload :Server, 'evidence_gatherer/server'
   autoload :UserAgent, 'evidence_gatherer/user_agent'
