@@ -65,6 +65,10 @@ USAGE
           @options[:agents] = a.split(/\s*,\s*/)
         end
 
+        opts.on('-c', '--cajole', 'Cajole tests with Caja compiler.') do |c|
+          @options[:cajole] = c
+        end
+
         opts.on_tail('-h', '--help', 'Show this message') do
           puts opts
           exit

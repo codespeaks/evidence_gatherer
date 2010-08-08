@@ -18,6 +18,7 @@ module EvidenceGatherer
     def build
       SuiteBuilder.new(config.root, output_dir) do |builder|
         builder.template = config.template
+        builder.cajole = config.cajole
         builder.build
       end
     end

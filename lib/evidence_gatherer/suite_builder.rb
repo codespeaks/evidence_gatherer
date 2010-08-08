@@ -7,6 +7,7 @@ module EvidenceGatherer
     DEFAULT_INDEX_PAGE = File.join(ASSETS_DIR, 'index.html').freeze
     
     attr_reader :input_dir, :output_dir
+    attr_accessor :cajole
     
     def initialize(input_dir, output_dir)
       @input_dir = pathname(input_dir)
@@ -18,6 +19,7 @@ module EvidenceGatherer
       delete_output_dir
       create_output_dir_structure
       copy_evidence
+      copy_caja_runtime_assets if cajole
       copy_index_page
       files = build_test_pages
       create_manifest(files)
@@ -75,6 +77,10 @@ module EvidenceGatherer
       end
     end
     
+    def caja_runtime_assets
+      Dir.glob(caja_assets_output_dir.join('*.js'))
+    end
+    
     protected
       def pathname(path)
         Pathname.new(File.expand_path(path))
@@ -87,10 +93,21 @@ module EvidenceGatherer
       def create_output_dir_structure
         FileUtils.mkdir_p(test_pages_output_dir)
         FileUtils.mkdir_p(assets_output_dir)
+        FileUtils.mkdir_p(caja_assets_output_dir) if cajole
       end
       
       def copy_evidence
         # FileUtils.cp(File.join(ASSETS_DIR, 'evidence.js'), assets_output_dir)
+      end
+      
+      def copy_caja_runtime_assets
+        CajaCompiler.runtime_assets.each do |f|
+          FileUtils.cp(f, caja_assets_output_dir)
+        end
+      end
+      
+      def caja_assets_output_dir
+        assets_output_dir.join('caja')
       end
       
       def copy_index_page
@@ -99,8 +116,12 @@ module EvidenceGatherer
       
       def build_test_pages
         test_files.collect do |file|
-          TestPageBuilder.build(file, self)
+          builder_class.build(file, self)
         end
+      end
+      
+      def builder_class
+        cajole ? CajoledTestPageBuilder : TestPageBuilder
       end
       
       def create_manifest(files)

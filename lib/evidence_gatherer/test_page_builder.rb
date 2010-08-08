@@ -39,6 +39,11 @@ module EvidenceGatherer
       def fixtures_public_path(path)
         "fixtures/#{path.basename}"
       end
+      
+      def normalize_public_path(path)
+        path = Pathname.new(path).relative_path_from(output_dir)
+        path.to_s.gsub(File::SEPARATOR, '/')
+      end
     end
     
     include Assets

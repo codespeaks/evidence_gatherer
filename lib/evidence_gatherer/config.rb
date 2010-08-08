@@ -24,12 +24,13 @@ module EvidenceGatherer
       AGENTS[name]
     end
     
-    attr_accessor :template, :agents, :root, :port
+    attr_accessor :template, :agents, :root, :port, :cajole
     
     def initialize(options = {})
       self.template = DEFAULT_TEMPLATE
       self.port = DEFAULT_PORT
       self.agents = AGENTS.keys
+      self.cajole = false
       merge(options)
     end
     
